@@ -60,19 +60,23 @@ def process_csv_stream(documentation_stream, variables_stream):
 
     for row in documentation_reader: 
         if len(row) < 4: 
+            st.warning(f"⚠️ Documentation CSV is missing required columns.{row}")
             continue 
-        address = row[0].strip()
+        address = row[0].strip().upper()
         name = row[3].strip()
         documentation_lookup[address] = name
 
-    # Proces variables 
+    # Process variables 
+    variables_stream.seek(0)  # Reset the stream position to the beginning
     variables = csv.DictReader(variables_stream)
+   
     processed_rows = []
     missing_addresses = []
+    converted_addresses = []
 
     for var_row in variables:
-        address = var_row.get('Address', '').strip()
-        var_type = var_row.get('Type', '').strip() 
+        address = var_row.get('ADDRESS', '').strip().upper()
+        var_type = var_row.get('TYPE', '').strip().upper() 
 
         if not address: 
             continue
@@ -94,14 +98,16 @@ def process_csv_stream(documentation_stream, variables_stream):
             continue  # skip unknown types
 
         processed_rows.append(processed_row)
+        converted_addresses.append(address)
 
+    
 
     output = StringIO()
     writer = csv.writer(output)
     writer.writerow(['Identifier', 'Name', 'Address', 'Type', 'Width', 'Signed', 'Max string length', 'Factor', 'Unit'])
     writer.writerows(processed_rows)
     output.seek(0)
-    return output, missing_addresses
+    return output, missing_addresses, converted_addresses
 
 
 # 🎯 Streamlit UI starts here
@@ -130,13 +136,17 @@ with col1:
                 documentation_stream = StringIO(documentation_file.getvalue().decode("utf-8"))
                 variables_stream = StringIO(variables_file.getvalue().decode("utf-8"))
 
-                result_csv, missing_addresses = process_csv_stream(documentation_stream, variables_stream)
+                result_csv, missing_addresses, converted_addresses = process_csv_stream(documentation_stream, variables_stream)
 
+                
                 if missing_addresses:
                     st.error(f"❗ ERROR: The following addresses were not found in the documentation CSV:\n{', '.join(missing_addresses)}")
-                else: 
-                    st.success ("✅ Conversion successful!")
-            
+                if converted_addresses:
+                    st.success(f"✅ Conversion successful! The following addresses were converted:\n{', '.join(converted_addresses)}")
+                else:
+                    st.warning("⚠️ No addresses were successfully converted.")
+                
+                
                 st.session_state.result_csv = result_csv
                 st.session_state.missing_addresses = missing_addresses
 
