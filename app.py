@@ -13,21 +13,21 @@ import uuid
 def oct_to_modified_decimal_BOOL(octal_str):
     try:
         decimal_value = int(octal_str, 8)
-        return decimal_value + 30000 if decimal_value < 9999 else decimal_value + 300000
+        return decimal_value + 3072 if decimal_value <= 3777 else f"NA{octal_str}"
     except ValueError:
         return f"Invalid octal input at {octal_str}"
 
 def oct_to_modified_decimal_INT(octal_str):
     try:
         decimal_value = int(octal_str, 8)
-        return decimal_value + 3072 if decimal_value <= 3777 else f"NA{octal_str}"
+        return decimal_value
     except ValueError:
         return f"Invalid octal input at {octal_str}"
 
 def oct_to_modified_decimal_FLOAT(octal_str):
     try:
         decimal_value = int(octal_str, 8)
-        return decimal_value + 3072 if decimal_value <= 3777 else f"NA{octal_str}"
+        return decimal_value 
     except ValueError:
         return f"Invalid octal input at {octal_str}"
     
@@ -37,17 +37,20 @@ def slugify(text: str):
 def convert_bool(address, name):
     description = slugify(name)
     address = oct_to_modified_decimal_BOOL(address)
-    return [description, name, address, 'bool', None, None, None, None, None]
+    formatted_address = f'1.{address}'
+    return [description, name, str(formatted_address), 'bool', None, None, None, None, None]
 
 def convert_int(address, name):
     description = slugify(name)
     address = oct_to_modified_decimal_INT(address)
-    return [description, name, address, 'int', 16, False, None, None, 'CHANGE ME']
+    formatted_address = f'3.{address}'
+    return [description, name, str(formatted_address), 'int', 16, False, None, None, 'CHANGE ME']
 
 def convert_float(address, name): 
     description = slugify(name)
     address = oct_to_modified_decimal_FLOAT(address)
-    return [description, name, address, 'float', 32, None, None, None, 'CHANGE ME']
+    formatted_address = f'3.{address}'
+    return [description, name, str(formatted_address), 'float', 32, None, None, None, 'CHANGE ME']
 
 
 def process_csv_stream(documentation_stream, variables_stream):
