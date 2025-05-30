@@ -1,14 +1,8 @@
-import streamlit as st
+import streamlit as st 
 import csv
 from io import StringIO
 from io import BytesIO
 import re 
-import uuid
-
-# Input File Format: 
-# CSV: Name, Type 
-# Documentation File: CSV 
-
 
 def oct_to_modified_decimal_BOOL(octal_str):
     try:
@@ -110,9 +104,10 @@ def process_csv_stream(documentation_stream, variables_stream):
     return output, missing_addresses, converted_addresses
 
 
+
 # 🎯 Streamlit UI starts here
-st.set_page_config(page_title="PLC Address to Modbus Converter", page_icon="🔧", layout="centered")
-st.title("🔧 PLC Address to Modbus Converter")
+st.set_page_config(page_title="Variable Converter", page_icon="🔧", layout="centered")
+st.title("Variable Conversion :robot_face:")
 
 # upload files 
 documentation_file = st.file_uploader("Upload your documentation CSV", type=["csv"], key = 'doc')
@@ -140,11 +135,11 @@ with col1:
 
                 
                 if missing_addresses:
-                    st.error(f"❗ ERROR: The following addresses were not found in the documentation CSV:\n{', '.join(missing_addresses)}")
+                    st.sidebar.error(f"❗ ERROR: The following addresses were not found in the documentation CSV:\n{', '.join(missing_addresses)}")
                 if converted_addresses:
-                    st.success(f"✅ Conversion successful! The following addresses were converted:\n{', '.join(converted_addresses)}")
+                    st.sidebar.success(f"✅ Conversion successful! The following addresses were converted:\n{', '.join(converted_addresses)}")
                 else:
-                    st.warning("⚠️ No addresses were successfully converted.")
+                    st.sidebar.warning("⚠️ No addresses were successfully converted.")
                 
                 
                 st.session_state.result_csv = result_csv
@@ -170,3 +165,5 @@ with col2:
         st.session_state.documentation_file = None
         st.session_state.variables_file = None
         st.success("🧹 Reset complete! Upload new files to start again.")
+
+st.markdown(':rotating_light: _Variables csv column headers must ALL capitalized_: **"ADDRESS", "TYPE"** :rotating_light:')
